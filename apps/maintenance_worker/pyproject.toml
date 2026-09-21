@@ -1,0 +1,18 @@
+[project]
+name = "assure-worker"
+version = "0.1.0"
+description = "Maintenance worker for stale runs, exports, and artifact expiry"
+requires-python = ">=3.12"
+dependencies = [
+  "assure-control-api",
+]
+
+[project.scripts]
+assure-worker = "assure_worker.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["assure_worker"]

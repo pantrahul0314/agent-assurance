@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: assure
+      POSTGRES_PASSWORD: assure
+      POSTGRES_DB: assure
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-roles.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assure"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: python -c "from assure_control_api.app import create_app; create_app()"
+    environment:
+      ASSURE_DATABASE_URL: postgresql+psycopg://assure_migrate:migrate@postgres:5432/assure
+      ASSURE_RUN_MIGRATIONS: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  demo:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: assure-demo
+    environment:
+      DEMO_HOST: 0.0.0.0
+      DEMO_PORT: "8080"
+      ASSURE_TARGET_MODE: ${ASSURE_TARGET_MODE:-vulnerable}
+      TENANT_A_READER_TOKEN: token-a-reader
+      TENANT_A_EDITOR_TOKEN: token-a-editor
+      TENANT_B_READER_TOKEN: token-b-reader
+      TENANT_B_EDITOR_TOKEN: token-b-editor
+      DEMO_ADMIN_TOKEN: token-admin
+    ports:
+      - "8080:8080"
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: assure-api
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
+      ASSURE_DATABASE_URL: postgresql+psycopg://assure_app:app@postgres:5432/assure
+      ASSURE_RUN_MIGRATIONS: "0"
+      ASSURE_ARTIFACT_DIR: /artifacts
+    ports:
+      - "8000:8000"
+    volumes:
+      - artifacts:/artifacts
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: assure-worker
+    environment:
+      ASSURE_DATABASE_URL: postgresql+psycopg://assure_app:app@postgres:5432/assure
+      ASSURE_RUN_MIGRATIONS: "0"
+      ASSURE_ARTIFACT_DIR: /artifacts
+    volumes:
+      - artifacts:/artifacts
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://127.0.0.1:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  artifacts:

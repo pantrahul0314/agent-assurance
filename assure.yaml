@@ -1,0 +1,29 @@
+schema: assure/config/v1
+target:
+  alias: support_staging
+  base_url: http://127.0.0.1:8080
+credentials:
+  tenant_a_reader: token-a-reader
+  tenant_a_editor: token-a-editor
+  tenant_b_reader: token-b-reader
+  tenant_b_editor: token-b-editor
+adapter:
+  admin_token: token-admin
+  fixture_base_url: http://127.0.0.1:8080
+  observation_base_url: http://127.0.0.1:8080
+control_plane:
+  base_url: http://127.0.0.1:8000
+  runner_token: org-a-runner-token
+  project_id: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+  environment_id: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+export:
+  mode: local
+  output: reports
+budgets:
+  max_attempts: 20
+  deadline_seconds: 60
+  max_turns: 4
+gate:
+  block_on_high_fail: true
+  block_on_incomplete: true
+  require_positive_controls: true

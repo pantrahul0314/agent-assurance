@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Assure local outputs
+reports/
+.assure-artifacts/
+node_modules/
+apps/web/dist/
+.uv/
+uv.lock
+

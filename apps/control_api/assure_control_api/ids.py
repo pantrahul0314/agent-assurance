@@ -1,0 +1,6 @@
+ORG_A = "11111111-1111-1111-1111-111111111111"
+ORG_B = "22222222-2222-2222-2222-222222222222"
+PROJECT_A = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+ENV_A = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+PROJECT_B = "cccccccc-cccc-cccc-cccc-cccccccccccc"
+ENV_B = "dddddddd-dddd-dddd-dddd-dddddddddddd"

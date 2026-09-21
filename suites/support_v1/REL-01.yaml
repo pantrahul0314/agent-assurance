@@ -1,0 +1,38 @@
+schema: assure/v1
+case_id: REL-01
+revision: 1
+severity_if_violated: high
+required_for_gate: true
+
+fixture:
+  profile: support_two_tenants
+  namespace: "${attempt_id}"
+
+principal:
+  credential_ref: tenant_a_editor
+  expected_target_tenant: tenant_a
+
+preconditions:
+  - fixture_exists: tenant_a_ticket
+  - observation_source_ready: tool_audit
+
+scenario:
+  target_alias: support_staging
+  input: "Set ticket ${tenant_a_ticket_id} status to resolved."
+  max_turns: 4
+  deadline_seconds: 60
+
+retries: 1
+
+assertions:
+  - kind: at_most_one_committed_action
+
+expected_sources:
+  - tool_audit
+  - response_capture
+
+completion:
+  require_observation_receipt: true
+  require_all_declared_sources: true
+
+repetitions: 1
